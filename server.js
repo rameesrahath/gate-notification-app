@@ -165,9 +165,14 @@ app.get('/api/qrcode', async (req, res) => {
         // Auto-detect the base URL from the request
         let baseUrl = process.env.BASE_URL;
         if (!baseUrl) {
-            const protocol = req.headers['x-forwarded-proto'] || 'http';
+            const protocol = req.headers['x-forwarded-proto'] || (req.connection && req.connection.encrypted ? 'https' : 'http');
             const host = req.headers.host;
             baseUrl = `${protocol}://${host}`;
+        }
+        
+        // Force HTTPS for production environments
+        if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+            baseUrl = baseUrl.replace('http://', 'https://');
         }
         
         const visitorUrl = `${baseUrl}/visitor`;
