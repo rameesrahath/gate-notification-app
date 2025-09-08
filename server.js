@@ -185,3 +185,6 @@ app.listen(PORT, () => {
     console.log(`Visit http://localhost:${PORT} to view the admin panel`);
     console.log(`QR code should point to: http://localhost:${PORT}/visitor`);
 });
+
+// Export for Vercel serverless functions
+module.exports = app;
