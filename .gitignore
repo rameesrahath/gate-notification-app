@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment variables
+.env
+
+# Uploads folder (user uploaded files)
+uploads/*
+!uploads/.gitkeep
+
+# Visitor data (use database in production)
+visitors.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log

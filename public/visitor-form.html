@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration - Gate App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .form-body {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #666;
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            color: #667eea;
+        }
+
+        .file-input-label.has-file {
+            border-color: #4caf50;
+            background: #f0fff0;
+            color: #4caf50;
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .form-body {
+                padding: 30px 20px;
+            }
+            
+            .form-header {
+                padding: 20px;
+            }
+            
+            .form-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>👋 Visitor Registration</h1>
+            <p>Please fill in your details to notify the host</p>
+        </div>
+
+        <div class="form-body">
+            <div id="messageContainer"></div>
+            
+            <form id="visitorForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="visitorName">Your Name <span class="required">*</span></label>
+                    <input type="text" id="visitorName" name="visitorName" class="form-control" 
+                           placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" 
+                           placeholder="Enter your phone number">
+                </div>
+
+                <div class="form-group">
+                    <label for="personToVisit">Who are you visiting? <span class="required">*</span></label>
+                    <input type="text" id="personToVisit" name="personToVisit" class="form-control" 
+                           placeholder="Name of the person you're visiting" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">Purpose of Visit</label>
+                    <textarea id="purpose" name="purpose" class="form-control" 
+                              placeholder="Brief description of your visit (optional)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="photo">Your Photo (Optional)</label>
+                    <div class="file-input-container">
+                        <input type="file" id="photo" name="photo" class="file-input" 
+                               accept="image/*" capture="user">
+                        <label for="photo" class="file-input-label" id="fileInputLabel">
+                            📷 Click to take/select your photo
+                        </label>
+                    </div>
+                    <div id="filePreview" class="file-preview"></div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    📞 Notify Host & Submit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('visitorForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageContainer = document.getElementById('messageContainer');
+        const photoInput = document.getElementById('photo');
+        const fileInputLabel = document.getElementById('fileInputLabel');
+        const filePreview = document.getElementById('filePreview');
+
+        // Handle file selection
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                fileInputLabel.textContent = `✅ Photo selected: ${file.name}`;
+                fileInputLabel.classList.add('has-file');
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    filePreview.innerHTML = `<img src="${e.target.result}" alt="Photo Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileInputLabel.textContent = '📷 Click to take/select your photo';
+                fileInputLabel.classList.remove('has-file');
+                filePreview.innerHTML = '';
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            
+            // Validate required fields
+            const visitorName = formData.get('visitorName').trim();
+            const personToVisit = formData.get('personToVisit').trim();
+            
+            if (!visitorName || !personToVisit) {
+                showMessage('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Notifying host...
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/visitor', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(`
+                        ✅ <strong>Success!</strong><br>
+                        Your information has been sent to <strong>${data.data.personToVisit}</strong>.<br>
+                        They will be notified via WhatsApp and will respond shortly.<br>
+                        <small>Submitted at: ${new Date(data.data.timestamp).toLocaleString()}</small>
+                    `, 'success');
+                    
+                    form.reset();
+                    fileInputLabel.textContent = '📷 Click to take/select your photo';
+                    fileInputLabel.classList.remove('has-file');
+                    filePreview.innerHTML = '';
+                } else {
+                    showMessage(`❌ <strong>Error:</strong> ${data.message}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showMessage('❌ <strong>Network Error:</strong> Please check your internet connection and try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '📞 Notify Host & Submit';
+            }
+        });
+
+        function showMessage(message, type) {
+            const className = type === 'success' ? 'success-message' : 'error-message';
+            messageContainer.innerHTML = `<div class="${className}">${message}</div>`;
+            
+            // Scroll to top to show message
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+            
+            // Auto-hide success messages after 10 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageContainer.innerHTML = '';
+                }, 10000);
+            }
+        }
+
+        // Auto-focus first input
+        document.getElementById('visitorName').focus();
+    </script>
+</body>
+</html>
