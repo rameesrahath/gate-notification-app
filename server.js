@@ -170,6 +170,9 @@ app.get('/api/qrcode', async (req, res) => {
             baseUrl = `${protocol}://${host}`;
         }
         
+        // Remove trailing slash if it exists
+        baseUrl = baseUrl.replace(/\/+$/, '');
+        
         // Force HTTPS for production environments
         if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
             baseUrl = baseUrl.replace('http://', 'https://');
