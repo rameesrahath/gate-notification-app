@@ -161,7 +161,15 @@ app.get('/api/visitors', (req, res) => {
 app.get('/api/qrcode', async (req, res) => {
     try {
         const QRCode = require('qrcode');
-        const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+        
+        // Auto-detect the base URL from the request
+        let baseUrl = process.env.BASE_URL;
+        if (!baseUrl) {
+            const protocol = req.headers['x-forwarded-proto'] || 'http';
+            const host = req.headers.host;
+            baseUrl = `${protocol}://${host}`;
+        }
+        
         const visitorUrl = `${baseUrl}/visitor`;
         
         const qrCodeDataURL = await QRCode.toDataURL(visitorUrl, {
