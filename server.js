@@ -101,7 +101,10 @@ app.post('/api/visitor', upload.single('photo'), async (req, res) => {
         }
 
         // Send WhatsApp notification (implement this function)
-        await sendWhatsAppNotification(visitorData);
+        // Don't await this to avoid blocking the response
+        sendWhatsAppNotification(visitorData).catch(error => {
+            console.error('WhatsApp notification failed:', error);
+        });
 
         res.json({ 
             success: true, 
@@ -153,11 +156,18 @@ ${visitorData.photoPath ? '📸 Photo attached' : '📸 No photo provided'}
 
 Please respond to allow or deny entry.`;
 
-        await client.messages.create({
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('WhatsApp notification timeout')), 10000);
+        });
+
+        const sendPromise = client.messages.create({
             body: message,
             from: fromWhatsApp,
             to: toWhatsApp
         });
+
+        await Promise.race([sendPromise, timeoutPromise]);
 
         console.log('WhatsApp notification sent successfully');
     } catch (error) {
