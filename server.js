@@ -92,9 +92,12 @@ app.post('/api/visitor', upload.single('photo'), async (req, res) => {
 
     } catch (error) {
         console.error('Error processing visitor:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
         res.status(500).json({ 
             success: false, 
-            message: 'Error processing visitor information' 
+            message: 'Error processing visitor information',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
@@ -136,6 +139,10 @@ Please respond to allow or deny entry.`;
         console.log('WhatsApp notification sent successfully');
     } catch (error) {
         console.error('Error sending WhatsApp notification:', error);
+        console.error('Twilio error details:', error.message);
+        console.error('Error code:', error.code);
+        console.error('Error status:', error.status);
+        // Don't throw the error - just log it so the visitor submission still succeeds
     }
 }
 
@@ -154,6 +161,30 @@ app.get('/api/visitors', (req, res) => {
     } catch (error) {
         console.error('Error fetching visitors:', error);
         res.status(500).json({ success: false, message: 'Error fetching visitors' });
+    }
+});
+
+// Test endpoint to check WhatsApp configuration
+app.get('/api/test-whatsapp', async (req, res) => {
+    try {
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const fromWhatsApp = process.env.TWILIO_WHATSAPP_NUMBER;
+        const toWhatsApp = process.env.HOST_WHATSAPP_NUMBER;
+
+        const config = {
+            hasAccountSid: !!accountSid,
+            hasAuthToken: !!authToken,
+            hasFromWhatsApp: !!fromWhatsApp,
+            hasToWhatsApp: !!toWhatsApp,
+            accountSidLength: accountSid ? accountSid.length : 0,
+            fromWhatsApp: fromWhatsApp ? fromWhatsApp.substring(0, 15) + '...' : 'Not set',
+            toWhatsApp: toWhatsApp ? toWhatsApp.substring(0, 15) + '...' : 'Not set'
+        };
+
+        res.json({ success: true, config });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
