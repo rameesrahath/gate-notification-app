@@ -17,7 +17,15 @@ app.use('/uploads', express.static('uploads'));
 // Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/');
+        // In serverless environments, use /tmp directory
+        const uploadDir = process.env.VERCEL ? '/tmp' : 'uploads/';
+        
+        // Ensure directory exists
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -69,13 +77,28 @@ app.post('/api/visitor', upload.single('photo'), async (req, res) => {
         const visitorsFile = path.join(__dirname, 'visitors.json');
         let visitors = [];
         
-        if (fs.existsSync(visitorsFile)) {
-            const fileContent = fs.readFileSync(visitorsFile, 'utf8');
-            visitors = JSON.parse(fileContent);
+        try {
+            if (fs.existsSync(visitorsFile)) {
+                const fileContent = fs.readFileSync(visitorsFile, 'utf8');
+                visitors = JSON.parse(fileContent);
+            }
+            
+            visitors.push(visitorData);
+            
+            // In serverless environments like Vercel, file writes might not persist
+            // So we'll log this but continue even if write fails
+            try {
+                fs.writeFileSync(visitorsFile, JSON.stringify(visitors, null, 2));
+                console.log('Visitor data saved to file successfully');
+            } catch (writeError) {
+                console.warn('Could not write to file (serverless environment):', writeError.message);
+                // Continue execution - this is expected in Vercel
+            }
+        } catch (fileError) {
+            console.warn('File operation warning:', fileError.message);
+            // Continue execution - just add to in-memory array
+            visitors.push(visitorData);
         }
-        
-        visitors.push(visitorData);
-        fs.writeFileSync(visitorsFile, JSON.stringify(visitors, null, 2));
 
         // Send WhatsApp notification (implement this function)
         await sendWhatsAppNotification(visitorData);
