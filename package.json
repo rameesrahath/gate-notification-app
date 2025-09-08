@@ -18,7 +18,7 @@
   "author": "",
   "license": "MIT",
   "engines": {
-    "node": "22.x"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",
