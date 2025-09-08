@@ -1,0 +1,23 @@
+# Environment Configuration for Gate App
+# Copy this file to .env and fill in your actual values
+
+# Server Configuration
+PORT=3000
+BASE_URL=http://localhost:3000
+
+# Twilio WhatsApp API Configuration
+# Sign up at https://www.twilio.com/console
+TWILIO_ACCOUNT_SID=your_account_sid_here
+TWILIO_AUTH_TOKEN=your_auth_token_here
+
+# Twilio WhatsApp Numbers
+# Format: whatsapp:+1234567890
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+HOST_WHATSAPP_NUMBER=whatsapp:+1234567890
+
+# Instructions:
+# 1. Create a Twilio account at https://www.twilio.com
+# 2. Get your Account SID and Auth Token from the Console
+# 3. Set up WhatsApp Sandbox or get approved WhatsApp Business API
+# 4. Replace the placeholder values above with your actual credentials
+# 5. Make sure to use the correct WhatsApp number format: whatsapp:+[country code][phone number]

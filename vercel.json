@@ -11,12 +11,5 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ],
-  "env": {
-    "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
-    "TWILIO_AUTH_TOKEN": "@twilio_auth_token", 
-    "TWILIO_WHATSAPP_NUMBER": "@twilio_whatsapp_number",
-    "HOST_WHATSAPP_NUMBER": "@host_whatsapp_number",
-    "BASE_URL": "@base_url"
-  }
+  ]
 }
