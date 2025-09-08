@@ -267,11 +267,23 @@
                         </p>
                     `;
                 } else {
-                    document.getElementById('qrCode').innerHTML = '<div class="error">Failed to generate QR code</div>';
+                    console.error('QR generation failed:', data);
+                    document.getElementById('qrCode').innerHTML = `
+                        <div class="error">Failed to generate QR code: ${data.message || 'Unknown error'}</div>
+                        <p style="margin-top: 10px; color: #666;">
+                            Try refreshing the page or check console for details.
+                        </p>
+                    `;
                 }
             } catch (error) {
                 console.error('Error generating QR code:', error);
-                document.getElementById('qrCode').innerHTML = '<div class="error">Error generating QR code</div>';
+                document.getElementById('qrCode').innerHTML = `
+                    <div class="error">Network error generating QR code</div>
+                    <p style="margin-top: 10px; color: #666;">
+                        Check your internet connection and try again.<br>
+                        Local server: <a href="http://localhost:3000/visitor" target="_blank">http://localhost:3000/visitor</a>
+                    </p>
+                `;
             }
         }
 
